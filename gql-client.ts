@@ -6,9 +6,7 @@ export interface Connection {
 }
 
 export default class GqlClient {
-    constructor(public connection:Connection, public GQL:string) {
-
-    }
+    constructor(public connection:Connection, public GQL:string) {}
 
     async run(name:string, variables:{[key: string]: any} = {}) {
         const data = await fetch(this.connection.url, {
