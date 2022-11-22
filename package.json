@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.2"
+  },
+  "name": "@klevn/gql-client",
+  "version": "1.0.0",
+  "main": "gql-client.ts",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
