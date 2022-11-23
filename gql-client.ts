@@ -5,10 +5,14 @@ export interface Connection {
     headers?: HeadersInit
 }
 
-export default class GqlClient {
-    constructor(public connection:Connection, public GQL:string) {}
+export interface GQL {
+    [name:string]: string
+}
 
-    async run(name:string, variables:{[key: string]: any} = {}) {
+export default class GqlClient<T extends GQL> {
+    constructor(public connection:Connection, public GQL:T) {}
+
+    async run(name:keyof T, variables:{[key: string]: any} = {}) {
         const data = await fetch(this.connection.url, {
             method: 'POST',
             headers: {
@@ -18,14 +22,12 @@ export default class GqlClient {
 
             body: JSON.stringify({
                 variables: variables,
-                operationName: name,
-
-                query: this.GQL,
+                query: this.GQL[name],
             })
         })
 
         const json = await data.json()
 
-        return json
+        return json.data
     }
 }

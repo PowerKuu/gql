@@ -3,11 +3,14 @@ export interface Connection {
     url: string;
     headers?: HeadersInit;
 }
-export default class GqlClient {
+export interface GQL {
+    [name: string]: string;
+}
+export default class GqlClient<T extends GQL> {
     connection: Connection;
-    GQL: string;
-    constructor(connection: Connection, GQL: string);
-    run(name: string, variables?: {
+    GQL: T;
+    constructor(connection: Connection, GQL: T);
+    run(name: keyof T, variables?: {
         [key: string]: any;
     }): Promise<any>;
 }

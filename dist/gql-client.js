@@ -15,11 +15,10 @@ export default class GqlClient {
             },
             body: JSON.stringify({
                 variables: variables,
-                operationName: name,
-                query: this.GQL,
+                query: this.GQL[name],
             })
         });
         const json = await data.json();
-        return json;
+        return json.data;
     }
 }
