@@ -6,8 +6,9 @@
     "@types/node-fetch": "^2.6.2"
   },
   "name": "@klevn/gql-client",
-  "version": "1.0.1",
-  "main": "gql-client.ts",
+  "version": "1.0.2",
+  "main": "/dist/gql-client.js",
+  "types": "/dist/gql-client.d.ts",
   "keywords": [],
   "author": "",
   "license": "ISC",
