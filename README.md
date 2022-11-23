@@ -1,19 +1,24 @@
 ```ts
 import GqlClient from "@klevn/gql-client"
 
-const GQL = `
-    query hello($pass: String!){
+const GQL = {
+    hello: `
+    query ($pass: String!){
         todoHistoryByPassword(password: $pass) {
-        _id
+            _id
         }
     }
+    `
 
-    query world($pass: String!){
+    world: `
+    query ($pass: String!){
         todoHistoryByPassword(password: $pass) {
-        _id
+            _id
         }
     }
-`
+    `
+}
+
 
 const gql = new GqlClient({
     url: "https://graphql.eu.fauna.com/graphql",
