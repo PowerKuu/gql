@@ -23,7 +23,7 @@ const GQL = {
 const gql = new GqlClient({
     url: "https://graphql.eu.fauna.com/graphql",
     headers: {
-        "authorization": "Basic Zm5BRTJBY1dnZEFBMEdvaFQ4U0ZZdW9ROXRERUZPWVhCU1pfSzdVODp0b2RvLWRhaWx5OmFkbWlu"
+        "authorization": ""
     }
 }, GQL)
 
