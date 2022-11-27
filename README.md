@@ -8,7 +8,7 @@ const GQL = {
             _id
         }
     }
-    `
+    `,
 
     world: `
     query ($pass: String!){
