@@ -47,11 +47,43 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
+exports.parseGraphqlObject = void 0;
 var node_fetch_1 = require("node-fetch");
+var fs_1 = require("fs");
+var path_1 = require("path");
+var graphql_tag_1 = require("graphql-tag");
+var graphql_1 = require("graphql");
+function parseGraphqlObject(path) {
+    var rawGQL = (0, fs_1.readFileSync)((0, path_1.resolve)(process.cwd(), path), {
+        encoding: "utf-8"
+    });
+    var GQL = {};
+    var parsed = (0, graphql_tag_1["default"])(rawGQL);
+    var _loop_1 = function () {
+        if (definition.kind !== "OperationDefinition")
+            return "continue";
+        var operation = definition["operation"];
+        var nameObject = definition["name"];
+        if ((operation === "query" || operation === "mutation") && nameObject) {
+            var nameError = function () { throw new Error("Graphql ".concat(operation, " must have a name!")); };
+            if (!nameObject || !nameObject["value"])
+                nameError();
+            var name_1 = nameObject["value"];
+            GQL[name_1] = (0, graphql_1.print)(definition);
+        }
+    };
+    for (var _i = 0, _a = parsed.definitions; _i < _a.length; _i++) {
+        var definition = _a[_i];
+        _loop_1();
+    }
+    return GQL;
+}
+exports.parseGraphqlObject = parseGraphqlObject;
 var GqlClient = /** @class */ (function () {
-    function GqlClient(connection, GQL) {
+    function GqlClient(connection, graphqlPath) {
         this.connection = connection;
-        this.GQL = GQL;
+        this.graphqlPath = graphqlPath;
+        this.GQL = parseGraphqlObject(this.graphqlPath);
     }
     GqlClient.prototype.run = function (name, variables) {
         var _a;

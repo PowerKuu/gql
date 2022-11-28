@@ -6,11 +6,13 @@ export interface Connection {
 export interface GQL {
     [name: string]: string;
 }
-export default class GqlClient<T extends GQL> {
+export declare function parseGraphqlObject(path: string): GQL;
+export default class GqlClient {
     connection: Connection;
-    GQL: T;
-    constructor(connection: Connection, GQL: T);
-    run(name: keyof T, variables?: {
+    graphqlPath: string;
+    GQL: GQL;
+    constructor(connection: Connection, graphqlPath: string);
+    run(name: string, variables?: {
         [key: string]: any;
     }): Promise<any>;
 }
