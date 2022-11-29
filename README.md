@@ -19,6 +19,8 @@ const gql = new GqlClient({
 }, "./test.graphql")
 
 gql.run("world", {
-    pass: "hello"
+    pass: "hello",
+    
+    resolve: ["todoHistoryByPassword", "_id"]
 }).then(console.log)
 ```
