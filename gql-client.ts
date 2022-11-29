@@ -10,12 +10,19 @@ export interface Connection {
     headers?: HeadersInit
 }
 
+
+
 export interface GQL {
     [name:string]: string
 }
 
+export interface Variables {
+    resolve?: (string|number)[]|((data:any) => any)
+    [name:string]: any
+}
 
-export function parseGraphqlObject(path:string): GQL {
+
+export function parseGraphql(path:string): GQL {
     const rawGQL = readFileSync(resolve(process.cwd(), path), {
         encoding: "utf-8"
     })
@@ -44,11 +51,27 @@ export function parseGraphqlObject(path:string): GQL {
 export default class GqlClient {
     GQL:GQL
     constructor(public connection:Connection, public graphqlPath:string) {
-        this.GQL = parseGraphqlObject(this.graphqlPath)
+        this.GQL = parseGraphql(this.graphqlPath)
     }
 
-    async run(name:string, variables:{[key: string]: any} = {}) {
-        const data = await fetch(this.connection.url, {
+    drillData(obj:Object, keys:(string|number)[]) {
+        var currentValue = obj
+
+        for (var key of keys) {
+            if (key in currentValue) {
+                currentValue = currentValue[key]
+                break
+            } else {
+                currentValue = null
+                break
+            }
+        }
+
+        return currentValue
+    }
+
+    async run(name:string, variables:Variables = {}) {
+        const request = await fetch(this.connection.url, {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
@@ -61,8 +84,20 @@ export default class GqlClient {
             })
         })
 
-        const json = await data.json()
+        const json = await request.json()
+        if (!json || json.data) return null
 
-        return json.data
+        var data = json.data
+
+        if (variables.resolve && Array.isArray(variables.resolve)) {
+            data = this.drillData(data, variables.resolve)
+        } else if (variables.resolve) {
+            var resolveFunction = variables.resolve as Function
+
+            data = resolveFunction(data)
+            if (!data) return null
+        }
+
+        return data 
     }
 }

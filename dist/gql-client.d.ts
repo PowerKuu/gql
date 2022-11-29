@@ -6,13 +6,16 @@ export interface Connection {
 export interface GQL {
     [name: string]: string;
 }
-export declare function parseGraphqlObject(path: string): GQL;
+export interface Variables {
+    resolve?: (string | number)[] | ((data: any) => any);
+    [name: string]: any;
+}
+export declare function parseGraphql(path: string): GQL;
 export default class GqlClient {
     connection: Connection;
     graphqlPath: string;
     GQL: GQL;
     constructor(connection: Connection, graphqlPath: string);
-    run(name: string, variables?: {
-        [key: string]: any;
-    }): Promise<any>;
+    drillData(obj: Object, keys: (string | number)[]): Object;
+    run(name: string, variables?: Variables): Promise<any>;
 }

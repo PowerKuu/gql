@@ -47,13 +47,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.parseGraphqlObject = void 0;
+exports.parseGraphql = void 0;
 var node_fetch_1 = require("node-fetch");
 var fs_1 = require("fs");
 var path_1 = require("path");
 var graphql_tag_1 = require("graphql-tag");
 var graphql_1 = require("graphql");
-function parseGraphqlObject(path) {
+function parseGraphql(path) {
     var rawGQL = (0, fs_1.readFileSync)((0, path_1.resolve)(process.cwd(), path), {
         encoding: "utf-8"
     });
@@ -78,18 +78,33 @@ function parseGraphqlObject(path) {
     }
     return GQL;
 }
-exports.parseGraphqlObject = parseGraphqlObject;
+exports.parseGraphql = parseGraphql;
 var GqlClient = /** @class */ (function () {
     function GqlClient(connection, graphqlPath) {
         this.connection = connection;
         this.graphqlPath = graphqlPath;
-        this.GQL = parseGraphqlObject(this.graphqlPath);
+        this.GQL = parseGraphql(this.graphqlPath);
     }
+    GqlClient.prototype.drillData = function (obj, keys) {
+        var currentValue = obj;
+        for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
+            var key = keys_1[_i];
+            if (key in currentValue) {
+                currentValue = currentValue[key];
+                break;
+            }
+            else {
+                currentValue = null;
+                break;
+            }
+        }
+        return currentValue;
+    };
     GqlClient.prototype.run = function (name, variables) {
         var _a;
         if (variables === void 0) { variables = {}; }
         return __awaiter(this, void 0, void 0, function () {
-            var data, json;
+            var request, json, data, resolveFunction;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, (0, node_fetch_1["default"])(this.connection.url, {
@@ -101,11 +116,23 @@ var GqlClient = /** @class */ (function () {
                             })
                         })];
                     case 1:
-                        data = _b.sent();
-                        return [4 /*yield*/, data.json()];
+                        request = _b.sent();
+                        return [4 /*yield*/, request.json()];
                     case 2:
                         json = _b.sent();
-                        return [2 /*return*/, json.data];
+                        if (!json || json.data)
+                            return [2 /*return*/, null];
+                        data = json.data;
+                        if (variables.resolve && Array.isArray(variables.resolve)) {
+                            data = this.drillData(data, variables.resolve);
+                        }
+                        else if (variables.resolve) {
+                            resolveFunction = variables.resolve;
+                            data = resolveFunction(data);
+                            if (!data)
+                                return [2 /*return*/, null];
+                        }
+                        return [2 /*return*/, data];
                 }
             });
         });

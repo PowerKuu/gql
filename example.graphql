@@ -1,0 +1,5 @@
+query world($pass: String!) {
+    todoHistoryByPassword(password: $pass) {
+        _id
+    }
+}
