@@ -104,17 +104,21 @@ var GqlClient = /** @class */ (function () {
         var _a;
         if (variables === void 0) { variables = {}; }
         return __awaiter(this, void 0, void 0, function () {
-            var request, json, data, resolveFunction;
+            var requstVariables, request, json, data, resolveFunction;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, (0, node_fetch_1["default"])(this.connection.url, {
-                            method: 'POST',
-                            headers: __assign({ "Content-Type": "application/json" }, (_a = this.connection.headers) !== null && _a !== void 0 ? _a : {}),
-                            body: JSON.stringify({
-                                variables: variables,
-                                query: this.GQL[name]
-                            })
-                        })];
+                    case 0:
+                        requstVariables = variables;
+                        if (requstVariables.resolve)
+                            delete requstVariables.resolve;
+                        return [4 /*yield*/, (0, node_fetch_1["default"])(this.connection.url, {
+                                method: 'POST',
+                                headers: __assign({ "Content-Type": "application/json" }, (_a = this.connection.headers) !== null && _a !== void 0 ? _a : {}),
+                                body: JSON.stringify({
+                                    variables: requstVariables,
+                                    query: this.GQL[name]
+                                })
+                            })];
                     case 1:
                         request = _b.sent();
                         return [4 /*yield*/, request.json()];

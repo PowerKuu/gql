@@ -2,15 +2,17 @@
   "dependencies": {
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "socket.io": "^4.5.4"
   },
   "devDependencies": {
-    "@types/node-fetch": "^2.6.2"
+    "@types/node-fetch": "^2.6.2",
+    "dgraph-dedicated": "^3.0.1"
   },
-  "name": "@klevn/gql-client",
-  "version": "2.0.1",
-  "main": "./dist/gql-client.js",
-  "types": "./dist/gql-client.d.ts",
+  "name": "@klevn/gql",
+  "version": "2.0.2",
+  "main": "./dist/gql.js",
+  "types": "./dist/gql.d.ts",
   "keywords": [],
   "author": "",
   "license": "ISC",

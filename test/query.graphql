@@ -1,0 +1,17 @@
+query getUser($name: String!){
+  getUser(name: $name) {
+    name
+  }
+}
+
+mutation addUser($name: String! $age: Int!){
+  addUser(input: {
+    name: $name
+    age: $age
+  }) {
+    user {
+      name
+      age
+    } 
+  }
+}
