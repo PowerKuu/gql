@@ -1,11 +1,13 @@
-```gql
-    # test.graphql
+# npm i @klevn/gql
 
-    query world($pass: String!){
-        todoHistoryByPassword(password: $pass) {
-            _id
-        }
+```gql
+# test.graphql
+
+query world($pass: String!){
+    todoHistoryByPassword(password: $pass) {
+        _id
     }
+}
 ```
 
 ```ts
