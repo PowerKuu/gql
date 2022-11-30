@@ -9,9 +9,9 @@
 ```
 
 ```ts
-import GqlClient from "@klevn/gql-client"
+import Client from "@klevn/gql-client"
 
-const gql = new GqlClient({
+const gql = new Client({
     url: "https://graphql.eu.fauna.com/graphql",
     headers: {
         "authorization": "Basic 123"
@@ -23,4 +23,6 @@ gql.run("world", {
     
     resolve: ["todoHistoryByPassword", "_id"]
 }).then(console.log)
+
+// Se also "createServer()" for a socket server.
 ```
