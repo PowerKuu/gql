@@ -10,7 +10,7 @@
     "dgraph-dedicated": "^3.0.1"
   },
   "name": "@klevn/gql",
-  "version": "2.0.2",
+  "version": "2.0.5",
   "main": "./dist/gql.js",
   "types": "./dist/gql.d.ts",
   "keywords": [],
