@@ -11,10 +11,16 @@ export interface Connection {
     url: string;
     headers?: HeadersInit;
 }
-export interface GqlSchema {
+export interface GqlMap {
     [name: string]: string;
 }
-export declare type ResolveType = (string | number)[] | ((data: any) => any);
+export declare type ResolveFunctionType = ((data: {
+    variables: {
+        [name: string]: any;
+    };
+    data: any;
+}) => any);
+export declare type ResolveType = (string | number)[] | ResolveFunctionType;
 export interface Variables {
     resolve?: ResolveType;
     [name: string]: any;
@@ -22,6 +28,7 @@ export interface Variables {
 export interface SocketRoutes {
     [name: string]: {
         global: boolean;
+        execute?: string;
         resolve?: ResolveType;
     };
 }
@@ -32,11 +39,11 @@ export interface ServerOptions {
     };
     routes: SocketRoutes;
 }
-export declare function parseGraphql(path: string): GqlSchema;
+export declare function mapGraphql(path: string): GqlMap;
 export default class Client {
     connection: Connection;
     graphqlPath: string;
-    gqlSchema: GqlSchema;
+    gqlMap: GqlMap;
     constructor(connection: Connection, graphqlPath: string);
     drillData(obj: Object, keys: (string | number)[]): Object;
     run(name: string, variables?: Variables): Promise<any>;

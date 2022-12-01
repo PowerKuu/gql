@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createServer = exports.parseGraphql = void 0;
+exports.createServer = exports.mapGraphql = void 0;
 const node_fetch_1 = require("node-fetch");
 const fs_1 = require("fs");
 const path_1 = require("path");
 const graphql_tag_1 = require("graphql-tag");
 const graphql_1 = require("graphql");
 const socket_io_1 = require("socket.io");
-function parseGraphql(path) {
+function mapGraphql(path) {
     const cwd = (0, path_1.dirname)(process.argv[1]);
     const rawGQL = (0, fs_1.readFileSync)((0, path_1.resolve)(cwd, path), {
         encoding: "utf-8"
@@ -29,15 +29,15 @@ function parseGraphql(path) {
     }
     return GQL;
 }
-exports.parseGraphql = parseGraphql;
+exports.mapGraphql = mapGraphql;
 class Client {
     connection;
     graphqlPath;
-    gqlSchema;
+    gqlMap;
     constructor(connection, graphqlPath) {
         this.connection = connection;
         this.graphqlPath = graphqlPath;
-        this.gqlSchema = parseGraphql(this.graphqlPath);
+        this.gqlMap = mapGraphql(this.graphqlPath);
     }
     drillData(obj, keys) {
         var currentValue = obj;
@@ -66,7 +66,7 @@ class Client {
             },
             body: JSON.stringify({
                 variables: requstVariables,
-                query: this.gqlSchema[name],
+                query: this.gqlMap[name],
             })
         });
         const json = await request.json();
@@ -78,7 +78,7 @@ class Client {
         }
         else if (variables.resolve) {
             var resolveFunction = variables.resolve;
-            data = resolveFunction(data);
+            data = resolveFunction({ data, variables });
             if (!data)
                 return null;
         }
@@ -91,8 +91,9 @@ function createServer(client, options) {
     server.on("connection", (socket) => {
         for (const route of Object.keys(options.routes)) {
             socket.on(route, async (data) => {
+                const setNull = Boolean(data.resolve);
                 data.resolve = options.routes[route].resolve;
-                const response = await client.run(route, data);
+                const response = setNull ? null : await client.run(options.routes[route].execute ?? route, data);
                 if (options.routes[route].global) {
                     server.emit(route, response);
                 }
