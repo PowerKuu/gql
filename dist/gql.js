@@ -54,10 +54,7 @@ class Client {
         }
         return currentValue;
     }
-    async run(name, variables = {}) {
-        const requstVariables = { ...variables };
-        if (requstVariables.resolve)
-            delete requstVariables.resolve;
+    async run(name, options, variables = {}) {
         const request = await (0, node_fetch_1.default)(this.connection.url, {
             method: "POST",
             headers: {
@@ -65,7 +62,7 @@ class Client {
                 ...this.connection.headers ?? {}
             },
             body: JSON.stringify({
-                variables: requstVariables,
+                variables: variables,
                 query: this.gqlMap[name],
             })
         });
@@ -73,11 +70,11 @@ class Client {
         if (!json || !json.data)
             return null;
         var data = json.data;
-        if (variables.drill) {
-            data = this.drillData(data, variables.drill);
+        if (options.drill) {
+            data = this.drillData(data, options.drill);
         }
-        if (variables.resolve) {
-            data = variables.resolve({ data, variables });
+        if (options.resolve) {
+            data = options.resolve({ data, variables });
         }
         return data ?? null;
     }
@@ -87,16 +84,13 @@ function createServer(client, options) {
     const server = new socket_io_1.Server(options.socket.server, options.socket.options);
     server.on("connection", (socket) => {
         for (const route of Object.keys(options.routes)) {
-            socket.on(route, async (data) => {
-                const setNull = Boolean(data.resolve);
-                data.resolve = options.routes[route].resolve;
-                data.drill = options.routes[route].drill;
-                const response = setNull ? null : await client.run(options.routes[route].execute ?? route, data);
+            socket.on(route, async (data, id) => {
+                const response = await client.run(options.routes[route].execute ?? route, options.routes[route].queryOptions, data);
                 if (options.routes[route].global) {
-                    server.emit(route, response);
+                    server.emit(route, response, id);
                 }
                 else {
-                    socket.emit(route, response);
+                    socket.emit(route, response, id);
                 }
             });
         }

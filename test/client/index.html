@@ -11,9 +11,10 @@
         import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
       
         const socket = io("http://10.0.0.9:5499")
-
+        
         socket.emit("getUser", {
-            name: "hello"
+            name: "hello",
+            test: "world"
         })
 
         socket.on("getUser", (data) => {

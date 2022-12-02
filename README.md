@@ -1,30 +1,75 @@
-# npm i @klevn/gql
+# GQL for dgraph
 
-```gql
-# test.graphql
+### Intall
+```npm i @klevn/gql```
 
-query world($pass: String!){
-    todoHistoryByPassword(password: $pass) {
-        _id
+```ts
+import Client, { createServer } from "../gql"
+
+const gql = new Client({
+    url: "http://localhost:8080/graphql"
+}, "./query.graphql")
+
+// U can also use "gql.run" to run it without a server
+
+createServer(gql, {
+    socket: {
+        server: 5499,
+        options: {
+            cors: {
+                origin: "*"
+            }
+        }
+    },
+
+    routes: {
+        "getUser": {
+            global: false,
+            queryOptions: {
+                drill: ["getUser", "name"],
+                resolve: ({data, variables}) => {
+                    console.log(variables)
+                    return data
+                }
+            }
+        },
+
+        "addUser": {
+            global: false,
+            queryOptions: {
+                drill: ["addUser", "user", "name"]
+            }
+        }
     }
+})
+```
+
+### schema.graphql
+[Use dgraph-dedicated to setup a database and schema](https://github.com/PowerKuu/dgraph-dedicated)
+```graphql
+type User {
+    name: String! @id
+    age: Int!
 }
 ```
 
-```ts
-import Client from "@klevn/gql-client"
+### query.graphql
+```graphql
+query getUser($name: String!){
+  getUser(name: $name) {
+    name
+  }
+}
 
-const gql = new Client({
-    url: "https://graphql.eu.fauna.com/graphql",
-    headers: {
-        "authorization": "Basic 123"
-    }
-}, "./test.graphql")
-
-gql.run("world", {
-    pass: "hello",
-    
-    resolve: ["todoHistoryByPassword", "_id"]
-}).then(console.log)
-
-// Se also "createServer()" for a socket server.
+mutation addUser($name: String! $age: Int!){
+  addUser(input: {
+    name: $name
+    age: $age
+  }) {
+    user {
+      name
+      age
+    } 
+  }
+}
 ```

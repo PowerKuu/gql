@@ -25,12 +25,14 @@ export type ResolveFunctionType = ((data: {variables:{[name:string]: any}, data:
 
 export type DrillType = (string|number)[]
 
-export interface Variables {
+export interface QueryOptions {
     drill?: DrillType
     resolve?: ResolveFunctionType
-    [name:string]: any
 }
 
+export interface Variables {
+    [name:string]: string
+}
 
 
 
@@ -39,8 +41,7 @@ export interface SocketRoutes {
         global: boolean
         execute?: string
 
-        drill?: DrillType
-        resolve?: ResolveFunctionType
+        queryOptions: QueryOptions
     }
 }
 
@@ -49,6 +50,7 @@ export interface ServerOptions {
         server: SocketServerOptions
         options?: Partial<SocketOptions>
     }
+    
     routes: SocketRoutes
 }
 
@@ -105,10 +107,7 @@ export default class Client {
         return currentValue
     }
 
-    async run(name:string, variables:Variables = {}) {
-        const requstVariables = { ...variables }
-        if(requstVariables.resolve) delete requstVariables.resolve
-
+    async run(name:string, options:QueryOptions, variables:Variables = {}) {
         const request = await fetch(this.connection.url, {
             method: "POST",
             headers: {
@@ -117,7 +116,7 @@ export default class Client {
             },
 
             body: JSON.stringify({
-                variables: requstVariables,
+                variables: variables,
                 query: this.gqlMap[name],
             })
         })
@@ -128,12 +127,12 @@ export default class Client {
 
         var data = json.data
 
-        if (variables.drill) {
-            data = this.drillData(data, variables.drill)
+        if (options.drill) {
+            data = this.drillData(data, options.drill)
         }
 
-        if (variables.resolve) {
-            data = variables.resolve({data, variables})
+        if (options.resolve) {
+            data = options.resolve({data, variables})
         }
 
         return data ?? null
@@ -145,18 +144,17 @@ export function createServer(client:Client, options:ServerOptions){
 
     server.on("connection", (socket) => {
         for (const route of Object.keys(options.routes)) {
-            socket.on(route, async (data:Variables) => {
-                const setNull = Boolean(data.resolve)
-
-                data.resolve = options.routes[route].resolve
-                data.drill = options.routes[route].drill
-
-                const response = setNull ? null : await client.run(options.routes[route].execute ?? route, data)
+            socket.on(route, async (data:Variables, id:number) => {
+                const response = await client.run(
+                    options.routes[route].execute ?? route, 
+                    options.routes[route].queryOptions, 
+                    data
+                )
 
                 if (options.routes[route].global) {
-                    server.emit(route, response)
+                    server.emit(route, response, id)
                 } else {
-                    socket.emit(route, response)
+                    socket.emit(route, response, id)
                 }
             })
         }

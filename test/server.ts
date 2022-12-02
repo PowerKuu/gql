@@ -10,7 +10,7 @@ createServer(gql, {
         server: 5499,
         options: {
             cors: {
-                origin: "*"
+                origin: "http://127.0.0.1:5500"
             }
         }
     },
@@ -18,12 +18,20 @@ createServer(gql, {
     routes: {
         "getUser": {
             global: false,
-            resolve: ["getUser", "name"]
+            queryOptions: {
+                drill: ["getUser", "name"],
+                resolve: ({data, variables}) => {
+                    console.log(variables)
+                    return data
+                }
+            }
         },
 
         "addUser": {
             global: false,
-            resolve: ["addUser", "user", "name"]
+            queryOptions: {
+                drill: ["addUser", "user", "name"]
+            }
         }
     }
 })
