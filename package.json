@@ -10,11 +10,14 @@
     "dgraph-dedicated": "^3.0.1"
   },
   "name": "@klevn/gql",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "main": "./dist/gql.js",
   "types": "./dist/gql.d.ts",
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "directories": {
+    "test": "test"
+  }
 }

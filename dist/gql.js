@@ -59,7 +59,7 @@ class Client {
         if (requstVariables.resolve)
             delete requstVariables.resolve;
         const request = await (0, node_fetch_1.default)(this.connection.url, {
-            method: 'POST',
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 ...this.connection.headers ?? {}
@@ -73,16 +73,13 @@ class Client {
         if (!json || !json.data)
             return null;
         var data = json.data;
-        if (variables.resolve && Array.isArray(variables.resolve)) {
-            data = this.drillData(data, variables.resolve);
+        if (variables.drill) {
+            data = this.drillData(data, variables.drill);
         }
-        else if (variables.resolve) {
-            var resolveFunction = variables.resolve;
-            data = resolveFunction({ data, variables });
-            if (!data)
-                return null;
+        if (variables.resolve) {
+            data = variables.resolve({ data, variables });
         }
-        return data;
+        return data ?? null;
     }
 }
 exports.default = Client;
@@ -93,6 +90,7 @@ function createServer(client, options) {
             socket.on(route, async (data) => {
                 const setNull = Boolean(data.resolve);
                 data.resolve = options.routes[route].resolve;
+                data.drill = options.routes[route].drill;
                 const response = setNull ? null : await client.run(options.routes[route].execute ?? route, data);
                 if (options.routes[route].global) {
                     server.emit(route, response);

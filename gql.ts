@@ -2,8 +2,8 @@ import fetch, {HeadersInit} from "node-fetch"
 import { readFileSync } from "fs"
 import { resolve, dirname } from "path"
 
-import gql from 'graphql-tag';
-import { print } from 'graphql'
+import gql from "graphql-tag";
+import { print } from "graphql"
 
 import { Server, ServerOptions as SocketOptions } from "socket.io"
 import type { Server as HTTPSServer } from "https";
@@ -22,10 +22,12 @@ export interface GqlMap {
 }
 
 export type ResolveFunctionType = ((data: {variables:{[name:string]: any}, data:any}) => any)
-export type ResolveType = (string|number)[]|ResolveFunctionType
+
+export type DrillType = (string|number)[]
 
 export interface Variables {
-    resolve?: ResolveType
+    drill?: DrillType
+    resolve?: ResolveFunctionType
     [name:string]: any
 }
 
@@ -36,7 +38,9 @@ export interface SocketRoutes {
     [name: string]: {
         global: boolean
         execute?: string
-        resolve?: ResolveType
+
+        drill?: DrillType
+        resolve?: ResolveFunctionType
     }
 }
 
@@ -84,7 +88,7 @@ export default class Client {
         this.gqlMap = mapGraphql(this.graphqlPath)
     }
 
-    drillData(obj:Object, keys:(string|number)[]) {
+    drillData(obj:Object, keys:DrillType) {
         var currentValue:Object|null = obj
 
         for (var key of keys) {
@@ -106,7 +110,7 @@ export default class Client {
         if(requstVariables.resolve) delete requstVariables.resolve
 
         const request = await fetch(this.connection.url, {
-            method: 'POST',
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 ...this.connection.headers ?? {}
@@ -124,17 +128,15 @@ export default class Client {
 
         var data = json.data
 
-
-        if (variables.resolve && Array.isArray(variables.resolve)) {
-            data = this.drillData(data, variables.resolve)
-        } else if (variables.resolve) {
-            var resolveFunction = variables.resolve as ResolveFunctionType
-
-            data = resolveFunction({data, variables})
-            if (!data) return null
+        if (variables.drill) {
+            data = this.drillData(data, variables.drill)
         }
 
-        return data 
+        if (variables.resolve) {
+            data = variables.resolve({data, variables})
+        }
+
+        return data ?? null
     }
 }
 
@@ -143,9 +145,11 @@ export function createServer(client:Client, options:ServerOptions){
 
     server.on("connection", (socket) => {
         for (const route of Object.keys(options.routes)) {
-            socket.on(route, async (data) => {
+            socket.on(route, async (data:Variables) => {
                 const setNull = Boolean(data.resolve)
+
                 data.resolve = options.routes[route].resolve
+                data.drill = options.routes[route].drill
 
                 const response = setNull ? null : await client.run(options.routes[route].execute ?? route, data)
 

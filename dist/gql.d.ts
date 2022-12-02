@@ -20,16 +20,18 @@ export declare type ResolveFunctionType = ((data: {
     };
     data: any;
 }) => any);
-export declare type ResolveType = (string | number)[] | ResolveFunctionType;
+export declare type DrillType = (string | number)[];
 export interface Variables {
-    resolve?: ResolveType;
+    drill?: DrillType;
+    resolve?: ResolveFunctionType;
     [name: string]: any;
 }
 export interface SocketRoutes {
     [name: string]: {
         global: boolean;
         execute?: string;
-        resolve?: ResolveType;
+        drill?: DrillType;
+        resolve?: ResolveFunctionType;
     };
 }
 export interface ServerOptions {
@@ -45,7 +47,7 @@ export default class Client {
     graphqlPath: string;
     gqlMap: GqlMap;
     constructor(connection: Connection, graphqlPath: string);
-    drillData(obj: Object, keys: (string | number)[]): Object;
+    drillData(obj: Object, keys: DrillType): Object;
     run(name: string, variables?: Variables): Promise<any>;
 }
 export declare function createServer(client: Client, options: ServerOptions): Server<import("socket.io/dist/typed-events").DefaultEventsMap, import("socket.io/dist/typed-events").DefaultEventsMap, import("socket.io/dist/typed-events").DefaultEventsMap, any>;
