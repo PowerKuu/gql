@@ -1,8 +1,20 @@
 # GQL for dgraph
 
-### Intall
+## Install
 ```npm i @klevn/gql```
 
+---
+
+# Example files
+
+---
+
+[Test direcotry for working example](https://github.com/PowerKuu/gql/tree/master/test)
+! Docker is needed to run ```npx dgraph-dedicated``` !
+
+---
+
+### Server
 ```ts
 import Client, { createServer } from "../gql"
 
@@ -41,6 +53,23 @@ createServer(gql, {
             }
         }
     }
+})
+```
+
+
+### Client
+```mjs
+import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
+
+const socket = io("http://10.0.0.9:5499")
+
+socket.emit("getUser", {
+    name: "hello",
+    test: "world"
+})
+
+socket.on("getUser", (data) => {
+    console.log(data)
 })
 ```
 
