@@ -1,6 +1,6 @@
 # GQL for dgraph
 
-### Install
+## Install
 ```npm i @klevn/gql```
 
 ---
