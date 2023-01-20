@@ -151,7 +151,7 @@ export function createServer(client:Client, options:ServerOptions){
                     options.routes[route].queryOptions, 
                     {
                         ...variables,
-                        ...options.routes[route].intercept(variables) ?? {}
+                        ...options.routes[route]?.intercept(variables) ?? {}
                     }
                 )
 

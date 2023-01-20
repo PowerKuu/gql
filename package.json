@@ -10,7 +10,7 @@
     "@klevn/dgraph": "^3.0.1"
   },
   "name": "@klevn/gql",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "main": "./dist/gql.js",
   "types": "./dist/gql.d.ts",
   "keywords": [],
