@@ -85,9 +85,12 @@ function createServer(client, options) {
     server.on("connection", (socket) => {
         for (const route of Object.keys(options.routes)) {
             socket.on(route, async (variables, id) => {
+                const intercept = options.routes[route]?.intercept ?? ((variables) => {
+                    return {};
+                });
                 const response = await client.run(options.routes[route].execute ?? route, options.routes[route].queryOptions, {
                     ...variables,
-                    ...options.routes[route]?.intercept(variables) ?? {}
+                    ...intercept(variables)
                 });
                 if (options.routes[route].global) {
                     server.emit(route, response, id);
