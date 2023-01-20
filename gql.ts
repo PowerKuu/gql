@@ -149,7 +149,10 @@ export function createServer(client:Client, options:ServerOptions){
                 const response = await client.run(
                     options.routes[route].execute ?? route, 
                     options.routes[route].queryOptions, 
-                    options.routes[route].intercept(variables) ?? variables
+                    {
+                        ...variables,
+                        ...options.routes[route].intercept(variables) ?? {}
+                    }
                 )
 
                 if (options.routes[route].global) {
