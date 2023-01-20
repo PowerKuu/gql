@@ -7,10 +7,10 @@
   },
   "devDependencies": {
     "@types/node-fetch": "^2.6.2",
-    "dgraph-dedicated": "^3.0.1"
+    "@klevn/dgraph": "^3.0.1"
   },
   "name": "@klevn/gql",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "main": "./dist/gql.js",
   "types": "./dist/gql.d.ts",
   "keywords": [],

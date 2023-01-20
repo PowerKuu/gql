@@ -40,6 +40,7 @@ export interface SocketRoutes {
     [name: string]: {
         global: boolean
         execute?: string
+        intercept?: (variables:Variables) => Variables 
 
         queryOptions: QueryOptions
     }
@@ -144,11 +145,11 @@ export function createServer(client:Client, options:ServerOptions){
 
     server.on("connection", (socket) => {
         for (const route of Object.keys(options.routes)) {
-            socket.on(route, async (data:Variables, id:number) => {
+            socket.on(route, async (variables:Variables, id:number) => {
                 const response = await client.run(
                     options.routes[route].execute ?? route, 
                     options.routes[route].queryOptions, 
-                    data
+                    options.routes[route].intercept(variables) ?? variables
                 )
 
                 if (options.routes[route].global) {

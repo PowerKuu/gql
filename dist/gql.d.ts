@@ -32,6 +32,7 @@ export interface SocketRoutes {
     [name: string]: {
         global: boolean;
         execute?: string;
+        intercept?: (variables: Variables) => Variables;
         queryOptions: QueryOptions;
     };
 }
