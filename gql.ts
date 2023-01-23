@@ -124,7 +124,12 @@ export default class Client {
 
         const json = await request.json()
 
-        if (!json || !json.data) return null
+        if (!json || !json.data) {
+            const txt = await request.text()
+            
+            console.error(txt)
+            throw new Error("Invalid response from graphql server!")
+        }
 
         var data = json.data
 
